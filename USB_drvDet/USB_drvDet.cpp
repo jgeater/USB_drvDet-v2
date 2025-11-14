@@ -4,6 +4,9 @@
 #include <string>
 #include <vector>
 #include <iostream> // Add this for debugging
+#include <commctrl.h> // Include for common controls like fonts
+
+
 
 // Helper: Check if any removable drive is present
 bool IsUsbPresent() {
@@ -65,16 +68,19 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
     RegisterClass(&wc);
 
     // Desired window size
-    int winWidth = 400;
-    int winHeight = 120;
+    int winWidth = 800;
+    int winHeight = 240;
 
     // Get screen size
     int screenWidth = GetSystemMetrics(SM_CXSCREEN);
     int screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
+
     // Calculate top-left position to center the window
     int x = (screenWidth - winWidth) / 2;
     int y = (screenHeight - winHeight) / 2;
+
+
 
     // Create window
     HWND hwnd = CreateWindowEx(
@@ -94,13 +100,41 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
         DrawMenuBar(hwnd);
     }
 
+    // Scale label size and position
+    int labelMarginX = static_cast<int>(winWidth * 0.00);
+    int labelMarginY = static_cast<int>(winHeight * 0.00);
+    // Center label horizontally
+    int labelWidth = winWidth - 2 * labelMarginX;
+    int labelHeight = static_cast<int>(winHeight * 0.9);
+    int labelX = (winWidth - labelWidth) / 2;
+    int labelY = labelMarginY; // Keep some top margin
+
     // Add static label
     HWND hLabel = CreateWindow(
         L"STATIC",
-        L"Please remove the USB drive to continue...",
+        L"Please remove USB boot media.  The task sequence will continue automatically upon removal",
         WS_CHILD | WS_VISIBLE | SS_CENTER,
-        10, 30, 370, 40,
+        labelX, labelY, labelWidth, labelHeight,
         hwnd, NULL, hInstance, NULL);
+
+    // Set a larger font for the label
+    HFONT hFont = CreateFont(
+        48,                // Height of font (increase for larger size)
+        0,                 // Width of font
+        0,                 // Escapement angle
+        0,                 // Orientation angle
+        FW_BOLD,           // Font weight
+        FALSE,             // Italic
+        FALSE,             // Underline
+        FALSE,             // StrikeOut
+        DEFAULT_CHARSET,   // Character set
+        OUT_DEFAULT_PRECIS,// Output precision
+        CLIP_DEFAULT_PRECIS,// Clipping precision
+        DEFAULT_QUALITY,   // Quality
+        DEFAULT_PITCH | FF_SWISS, // Pitch and family
+        L"Segoe UI"        // Font face
+    );
+    SendMessage(hLabel, WM_SETFONT, (WPARAM)hFont, TRUE);
 
     // Show window
     ShowWindow(hwnd, SW_SHOW);
